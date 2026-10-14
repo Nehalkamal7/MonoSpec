@@ -72,6 +72,21 @@ export function Header() {
           <span className="font-medium text-[11px]">{activeStage?.labelEn}</span>
           <span className="text-[10px] text-[var(--text-muted)] font-sans">({activeStage?.labelAr})</span>
         </div>
+
+        {/* Native Figma Project File Link */}
+        {activeProject.figmaUrl && (
+          <a
+            href={activeProject.figmaUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={`Open native Figma file: ${activeProject.figmaUrl}`}
+            className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] text-[11px] font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <FigmaIcon className="w-3 h-3" />
+            <span className="truncate max-w-[120px]">Figma File</span>
+            <ExternalLink className="w-2.5 h-2.5 text-[var(--text-muted)]" />
+          </a>
+        )}
       </div>
 
       {/* Right: Actions, Figma Shortcut, Demo Preview, Viewport Controls */}

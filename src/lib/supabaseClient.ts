@@ -82,3 +82,6 @@ export function createCustomSupabaseClient(
  * Falls back to null when environment variables are not set.
  */
 export const supabaseClient = getSupabaseClient();
+
+// Re-export complete CRUD server-side utilities for projects, chats, training datasets, and companies
+export * from './supabaseService';

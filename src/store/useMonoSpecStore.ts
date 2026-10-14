@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Project, StageId, ChatMessage, CompanyId } from '@/types';
 import { INITIAL_PROJECTS, INITIAL_CHAT_MESSAGES } from '@/lib/mock-data';
 import { STAGES } from '@/lib/constants';
@@ -19,6 +20,8 @@ interface MonoSpecStore {
   isNewProjectModalOpen: boolean;
   isFigmaModalOpen: boolean;
   isDemoModalOpen: boolean;
+  isDemoDrawerOpen: boolean;
+  isTrainingModalOpen: boolean;
   isGeneratingSpec: boolean;
 
   // Chat feeds per project-stage
@@ -40,6 +43,8 @@ interface MonoSpecStore {
   setNewProjectModalOpen: (open: boolean) => void;
   setFigmaModalOpen: (open: boolean) => void;
   setDemoModalOpen: (open: boolean) => void;
+  setDemoDrawerOpen: (open: boolean) => void;
+  setTrainingModalOpen: (open: boolean) => void;
 
   // Data mutation actions
   createProject: (params: {
@@ -50,23 +55,28 @@ interface MonoSpecStore {
   }) => Project;
   updateSpecMarkdown: (projectId: string, stageId: StageId, markdown: string) => void;
   toggleChecklistItem: (projectId: string, stageId: StageId, checkId: string) => void;
+  updateProjectUrls: (projectId: string, urls: { figmaUrl?: string; demoUrl?: string }) => void;
   sendChatMessage: (content: string) => void;
   quickGenerateForActiveStage: (promptType: string) => void;
 }
 
-export const useMonoSpecStore = create<MonoSpecStore>((set, get) => ({
-  projects: INITIAL_PROJECTS,
-  activeProjectId: INITIAL_PROJECTS[0].id,
-  activeStageId: INITIAL_PROJECTS[0].activeStageId,
-  searchQuery: '',
-  selectedCompanyFilter: 'all',
+export const useMonoSpecStore = create<MonoSpecStore>()(
+  persist(
+    (set, get) => ({
+      projects: INITIAL_PROJECTS,
+      activeProjectId: INITIAL_PROJECTS[0].id,
+      activeStageId: INITIAL_PROJECTS[0].activeStageId,
+      searchQuery: '',
+      selectedCompanyFilter: 'all',
 
-  sidebarCollapsed: false,
-  canvasViewMode: 'split',
-  isNewProjectModalOpen: false,
-  isFigmaModalOpen: false,
-  isDemoModalOpen: false,
-  isGeneratingSpec: false,
+      sidebarCollapsed: false,
+      canvasViewMode: 'split',
+      isNewProjectModalOpen: false,
+      isFigmaModalOpen: false,
+      isDemoModalOpen: false,
+      isDemoDrawerOpen: false,
+      isTrainingModalOpen: false,
+      isGeneratingSpec: false,
 
   chatMessages: INITIAL_CHAT_MESSAGES,
 
@@ -120,6 +130,10 @@ export const useMonoSpecStore = create<MonoSpecStore>((set, get) => ({
   setFigmaModalOpen: (open) => set({ isFigmaModalOpen: open }),
 
   setDemoModalOpen: (open) => set({ isDemoModalOpen: open }),
+
+  setDemoDrawerOpen: (open) => set({ isDemoDrawerOpen: open }),
+
+  setTrainingModalOpen: (open) => set({ isTrainingModalOpen: open }),
 
   createProject: ({ title, companyId, description, architectureTier }) => {
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -233,6 +247,20 @@ export interface SystemContext {
     }));
   },
 
+  updateProjectUrls: (projectId, urls) => {
+    set((state) => ({
+      projects: state.projects.map((p) => {
+        if (p.id !== projectId) return p;
+        return {
+          ...p,
+          figmaUrl: urls.figmaUrl !== undefined ? urls.figmaUrl : p.figmaUrl,
+          demoUrl: urls.demoUrl !== undefined ? urls.demoUrl : p.demoUrl,
+          updatedAt: new Date().toISOString(),
+        };
+      }),
+    }));
+  },
+
   sendChatMessage: (content) => {
     const { activeProjectId, activeStageId, chatMessages } = get();
     const chatKey = `${activeProjectId}-${activeStageId}`;
@@ -312,4 +340,18 @@ Would you like me to incorporate this directly into the live specification canva
     };
     sendChatMessage(prompts[promptType] || 'Analyze current stage specifications and identify optimization vectors.');
   },
-}));
+}),
+    {
+      name: 'monospec-enterprise-storage-v1',
+      partialize: (state) => ({
+        projects: state.projects,
+        activeProjectId: state.activeProjectId,
+        activeStageId: state.activeStageId,
+        chatMessages: state.chatMessages,
+        selectedCompanyFilter: state.selectedCompanyFilter,
+        canvasViewMode: state.canvasViewMode,
+        sidebarCollapsed: state.sidebarCollapsed,
+      }),
+    }
+  )
+);

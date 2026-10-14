@@ -8,6 +8,8 @@ import { WorkspaceContainer } from '@/components/workspace/WorkspaceContainer';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
 import { FigmaExportModal } from '@/components/modals/FigmaExportModal';
 import { DemoPreviewModal } from '@/components/modals/DemoPreviewModal';
+import { TrainingDatasetsModal } from '@/components/modals/TrainingDatasetsModal';
+import { DemoPreviewDrawer } from '@/components/workspace/DemoPreviewDrawer';
 import { useMonoSpecStore } from '@/store/useMonoSpecStore';
 import { STAGES } from '@/lib/constants';
 
@@ -61,10 +63,12 @@ export function AppShell() {
         </main>
       </div>
 
-      {/* Global Modals */}
+      {/* Global Modals & Side Drawers */}
       <NewProjectModal />
       <FigmaExportModal />
       <DemoPreviewModal />
+      <TrainingDatasetsModal />
+      <DemoPreviewDrawer />
     </div>
   );
 }

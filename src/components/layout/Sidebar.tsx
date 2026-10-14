@@ -15,6 +15,7 @@ import {
   Clock,
   Shield,
   CircleDot,
+  Database,
 } from 'lucide-react';
 import { useMonoSpecStore } from '@/store/useMonoSpecStore';
 import { COMPANIES, STAGES } from '@/lib/constants';
@@ -32,6 +33,7 @@ export function Sidebar() {
     setSearchQuery,
     setSelectedCompanyFilter,
     setNewProjectModalOpen,
+    setTrainingModalOpen,
     getFilteredProjects,
   } = useMonoSpecStore();
 
@@ -71,6 +73,14 @@ export function Sidebar() {
             className="w-10 h-10 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] flex items-center justify-center text-[var(--text-primary)] transition-colors"
           >
             <Plus className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setTrainingModalOpen(true)}
+            title="AI Training Datasets"
+            className="w-10 h-10 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <Database className="w-4 h-4" />
           </button>
 
           <div className="w-8 h-px bg-[var(--border-subtle)] my-1" />
@@ -297,6 +307,21 @@ export function Sidebar() {
 
       {/* Bottom Section: Theme Switcher & User Profile */}
       <div className="p-3 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-surface)]">
+        {/* AI Training Datasets trigger */}
+        <button
+          onClick={() => setTrainingModalOpen(true)}
+          title="Manage Few-Shot Training Datasets"
+          className="w-full flex items-center justify-between p-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-xs text-[var(--text-primary)] transition-colors group"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Database className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors" />
+            <span className="font-semibold text-xs truncate">AI Training Data</span>
+          </div>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--accent-contrast)] text-[var(--accent-contrast-text)]">
+            RAG
+          </span>
+        </button>
+
         {/* Theme mode toggle */}
         <div>
           <div className="text-[10px] uppercase font-mono tracking-wider text-[var(--text-muted)] mb-1.5 px-0.5">
