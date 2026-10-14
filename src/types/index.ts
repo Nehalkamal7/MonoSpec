@@ -72,3 +72,6 @@ export interface ChatMessage {
 }
 
 export type ThemeMode = 'dark' | 'light' | 'system';
+
+export * from './database.types';
+

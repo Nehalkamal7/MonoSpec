@@ -1,0 +1,153 @@
+'use client';
+
+import React, { useState } from 'react';
+import {
+  ExternalLink,
+  Play,
+  Share2,
+  Copy,
+  Check,
+  Columns,
+  Maximize2,
+  MessageSquare,
+  Sparkles,
+  ShieldCheck,
+  Building2,
+} from 'lucide-react';
+import { FigmaIcon } from '@/components/ui/FigmaIcon';
+import { useMonoSpecStore } from '@/store/useMonoSpecStore';
+import { COMPANIES, STAGES } from '@/lib/constants';
+
+export function Header() {
+  const {
+    getActiveProject,
+    activeStageId,
+    canvasViewMode,
+    setCanvasViewMode,
+    setFigmaModalOpen,
+    setDemoModalOpen,
+  } = useMonoSpecStore();
+
+  const [copied, setCopied] = useState(false);
+  const activeProject = getActiveProject();
+
+  if (!activeProject) return null;
+
+  const company = COMPANIES[activeProject.companyId];
+  const activeStage = STAGES.find((s) => s.id === activeStageId);
+  const deliverable = activeProject.stages[activeStageId];
+
+  const handleCopyLink = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <header className="h-16 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-6 flex items-center justify-between shrink-0 select-none transition-colors">
+      {/* Left: Active Project Info */}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2">
+          {/* Company Tag */}
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[11px] font-mono text-[var(--text-secondary)]">
+            <Building2 className="w-3 h-3 text-[var(--text-muted)]" />
+            <span className="font-semibold text-[var(--text-primary)]">{company.name}</span>
+            <span className="text-[var(--text-muted)]">({company.code})</span>
+          </div>
+
+          <span className="text-[var(--text-muted)]">/</span>
+
+          {/* Project Title */}
+          <h1 className="font-semibold text-sm tracking-tight text-[var(--text-primary)] truncate max-w-xs md:max-w-md">
+            {activeProject.title}
+          </h1>
+        </div>
+
+        {/* Active Stage Pill */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-[var(--border-strong)] bg-[var(--bg-surface-elevated)] text-xs text-[var(--text-primary)] shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-contrast)] animate-pulse" />
+          <span className="font-mono text-[10px] text-[var(--text-muted)] font-bold">{activeStage?.badge}</span>
+          <span className="font-medium text-[11px]">{activeStage?.labelEn}</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-sans">({activeStage?.labelAr})</span>
+        </div>
+      </div>
+
+      {/* Right: Actions, Figma Shortcut, Demo Preview, Viewport Controls */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* View Mode Segmented Controls */}
+        <div className="hidden lg:flex items-center p-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+          <button
+            onClick={() => setCanvasViewMode('split')}
+            title="Split Workspace View"
+            className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+              canvasViewMode === 'split'
+                ? 'bg-[var(--accent-contrast)] text-[var(--accent-contrast-text)] font-medium shadow-xs'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <Columns className="w-3.5 h-3.5" />
+            <span>Split</span>
+          </button>
+          <button
+            onClick={() => setCanvasViewMode('canvas-only')}
+            title="Spec Canvas Focus"
+            className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+              canvasViewMode === 'canvas-only'
+                ? 'bg-[var(--accent-contrast)] text-[var(--accent-contrast-text)] font-medium shadow-xs'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Canvas</span>
+          </button>
+          <button
+            onClick={() => setCanvasViewMode('chat-only')}
+            title="Architect Chat Focus"
+            className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+              canvasViewMode === 'chat-only'
+                ? 'bg-[var(--accent-contrast)] text-[var(--accent-contrast-text)] font-medium shadow-xs'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Chat</span>
+          </button>
+        </div>
+
+        <div className="hidden sm:block w-px h-5 bg-[var(--border-subtle)]" />
+
+        {/* Export to Figma Shortcut */}
+        <button
+          onClick={() => setFigmaModalOpen(true)}
+          title="Export Design Tokens & Frames to Figma"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] text-xs font-medium transition-all group shadow-2xs"
+        >
+          <FigmaIcon className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors" />
+          <span className="hidden md:inline">Export to Figma</span>
+          <span className="md:hidden">Figma</span>
+        </button>
+
+        {/* Demo Preview Button */}
+        <button
+          onClick={() => setDemoModalOpen(true)}
+          title="Launch Live Architectural Simulation"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-contrast)] text-[var(--accent-contrast-text)] text-xs font-semibold hover:opacity-90 transition-all shadow-xs"
+        >
+          <Play className="w-3.5 h-3.5 fill-current" />
+          <span>Demo Preview</span>
+        </button>
+
+        {/* Copy / Share Quick Shortcut */}
+        <button
+          onClick={handleCopyLink}
+          title="Copy Spec Link"
+          className="p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
+        >
+          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
+        </button>
+      </div>
+    </header>
+  );
+}
